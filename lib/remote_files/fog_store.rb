@@ -35,6 +35,10 @@ module RemoteFiles
     end
 
     def url(identifier)
+      public_url(identifier)
+    end
+
+    def public_url(identifier)
       case options[:provider]
       when 'AWS'
         path = identifier.split("/").map {|str| Fog::AWS.escape(str) }.join("/")
@@ -49,7 +53,7 @@ module RemoteFiles
 
         "https://storage.cloudfiles.com/#{directory_name}/#{path}"
       else
-        raise "#{self.class.name}#url was not implemented for the #{options[:provider]} provider"
+        raise "#{self.class.name}#public_url was not implemented for the #{options[:provider]} provider"
       end
     end
 

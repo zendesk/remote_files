@@ -35,9 +35,13 @@ module RemoteFiles
     def url(identifier)
       case options[:provider]
       when 'AWS'
-        "https://s3.amazonaws.com/#{directory_name}/#{Fog::AWS.escape(identifier)}"
+        path = identifier.split("/").map {|str| Fog::AWS.escape(str) }.join("/")
+
+        "https://s3.amazonaws.com/#{directory_name}/#{path}"
       when 'Rackspace'
-        "https://storage.cloudfiles.com/#{directory_name}/#{Fog::Rackspace.escape(identifier, '/')}"
+        path = Fog::Rackspace.escape(identifier, '/')
+
+        "https://storage.cloudfiles.com/#{directory_name}/#{path}"
       else
         raise "#{self.class.name}#url was not implemented for the #{options[:provider]} provider"
       end

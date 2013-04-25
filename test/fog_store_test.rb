@@ -95,6 +95,10 @@ describe RemoteFiles::FogStore do
       it 'should return an S3 url' do
         @store.url('identifier').must_equal('https://s3.amazonaws.com/directory/identifier')
       end
+
+      it 'should escape illegal characters, but not forward slashes, from the identifier' do
+        @store.url('path.*/to/foo.*').must_equal('https://s3.amazonaws.com/directory/path.%2A/to/foo.%2A')
+      end
     end
 
     describe 'for CloudFiles connections' do
@@ -102,6 +106,10 @@ describe RemoteFiles::FogStore do
 
       it 'should return a CloudFiles url' do
         @store.url('identifier').must_equal('https://storage.cloudfiles.com/directory/identifier')
+      end
+
+      it 'should escape illegal characters, but not forward slashes, from the identifier' do
+        @store.url('path.*/to/foo.*').must_equal('https://storage.cloudfiles.com/directory/path.%2A/to/foo.%2A')
       end
     end
 

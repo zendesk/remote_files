@@ -3,6 +3,8 @@ require 'fog'
 
 module RemoteFiles
   class FogStore < AbstractStore
+    AWS_SUBDOMAIN = /^(?:[a-z]|\d(?!\d{0,2}(?:\d{1,3}){3}$))(?:[a-z0-9\.]|(?![\-])|\-(?![\.])){1,61}[a-z0-9]$/
+
     def store!(file)
       success = directory.files.create(
         :body         => file.content,
@@ -37,7 +39,11 @@ module RemoteFiles
       when 'AWS'
         path = identifier.split("/").map {|str| Fog::AWS.escape(str) }.join("/")
 
-        "https://s3.amazonaws.com/#{directory_name}/#{path}"
+        if directory_name =~ AWS_SUBDOMAIN
+          "https://#{directory_name}.s3.amazonaws.com/#{path}"
+        else
+          "https://s3.amazonaws.com/#{directory_name}/#{path}"
+        end
       when 'Rackspace'
         path = Fog::Rackspace.escape(identifier, '/')
 
@@ -50,7 +56,11 @@ module RemoteFiles
     def url_matcher
       @url_matcher ||= case options[:provider]
       when 'AWS'
-        /https?:\/\/s3[^\.]*.amazonaws.com\/#{directory_name}\/(.*)/
+        if directory_name =~ AWS_SUBDOMAIN
+          /https?:\/\/#{directory_name}\.s3[^\.]*.amazonaws.com\/(.*)/
+        else
+          /https?:\/\/s3[^\.]*.amazonaws.com\/#{directory_name}\/(.*)/
+        end
       when 'Rackspace'
         /https?:\/\/storage.cloudfiles.com\/#{directory_name}\/(.*)/
       else

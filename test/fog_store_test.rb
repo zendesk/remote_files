@@ -93,11 +93,11 @@ describe RemoteFiles::FogStore do
       before { @store[:provider] = 'AWS' }
 
       it 'should return an S3 url' do
-        @store.url('identifier').must_equal('https://s3.amazonaws.com/directory/identifier')
+        @store.url('identifier').must_equal('https://directory.s3.amazonaws.com/identifier')
       end
 
       it 'should escape illegal characters, but not forward slashes, from the identifier' do
-        @store.url('path.*/to/foo.*').must_equal('https://s3.amazonaws.com/directory/path.%2A/to/foo.%2A')
+        @store.url('path.*/to/foo.*').must_equal('https://directory.s3.amazonaws.com/path.%2A/to/foo.%2A')
       end
     end
 
@@ -127,7 +127,7 @@ describe RemoteFiles::FogStore do
       before { @store[:provider] = 'AWS' }
 
       it 'should create a file if the bucket matches' do
-        file = @store.file_from_url('http://s3-eu-west-1.amazonaws.com/directory/key/on/cloud.txt')
+        file = @store.file_from_url('http://directory.s3-eu-west-1.amazonaws.com/key/on/cloud.txt')
         assert file
         assert_equal 'key/on/cloud.txt', file.identifier
 

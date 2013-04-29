@@ -18,7 +18,7 @@ module RemoteFiles
 
       FileUtils.mkdir_p(file_name.parent)
 
-      file_name.open('w') do |f|
+      file_name.open('wb') do |f|
         if file.content.respond_to?(:read)
           while blk = file.content.read(2048)
             f << blk

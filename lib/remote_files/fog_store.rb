@@ -35,7 +35,31 @@ module RemoteFiles
     end
 
     def url(identifier)
-      public_url(identifier)
+      if !options[:public]
+        authenticated_url(identifier)
+      else
+        public_url(identifier)
+      end
+    end
+
+    def authenticated_url(identifier)
+      expiration_time = Fog::Time.now + (options[:authenticated_url_expiration] || 600)
+
+      case options[:provider]
+      when 'AWS'
+        path = identifier.split("/").map {|str| Fog::AWS.escape(str) }.join("/")
+
+        # avoid a get by using local references
+        local_directory = connection.directories.new(:key => directory_name)
+        local_file = local_directory.files.new(:key => path)
+        local_file.url(expiration_time)
+      when 'Rackspace'
+        path = Fog::Rackspace.escape(identifier, '/')
+
+        connection.get_object_https_url(directory_name, path, expiration_time)
+      else
+        raise "#{self.class.name}#authenticated_url was not implemented for the #{options[:provider]} provider"
+      end
     end
 
     def public_url(identifier)

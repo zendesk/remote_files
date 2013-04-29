@@ -10,7 +10,7 @@ require 'remote_files'
 
 require 'minitest/autorun'
 
-require 'mocha'
+require 'mocha/setup'
 
 Fog.mock!
 

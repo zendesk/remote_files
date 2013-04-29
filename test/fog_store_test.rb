@@ -161,7 +161,7 @@ describe RemoteFiles::FogStore do
       @store.directory.files.create(
         :body         => 'content',
         :content_type => 'text/plain',
-        :key          => 'identifier',
+        :key          => 'identifier'
       )
     end
 

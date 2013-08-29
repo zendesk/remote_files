@@ -35,7 +35,7 @@ module RemoteFiles
     def url(identifier)
       case options[:provider]
       when 'AWS'
-        "https://s3.amazonaws.com/#{directory_name}/#{Fog::AWS.escape(identifier)}"
+        "https://#{aws_host}/#{directory_name}/#{Fog::AWS.escape(identifier)}"
       when 'Rackspace'
         "https://storage.cloudfiles.com/#{directory_name}/#{Fog::Rackspace.escape(identifier, '/')}"
       else
@@ -76,6 +76,15 @@ module RemoteFiles
     end
 
     protected
+
+    def aws_host
+      case options[:region]
+      when nil, 'us-east-1'
+        's3.amazonaws.com'
+      else
+        "s3-#{options[:region]}.amazonaws.com"
+      end
+    end
 
     def lookup_directory
       connection.directories.get(directory_name)

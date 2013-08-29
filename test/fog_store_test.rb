@@ -95,6 +95,14 @@ describe RemoteFiles::FogStore do
       it 'should return an S3 url' do
         @store.url('identifier').must_equal('https://s3.amazonaws.com/directory/identifier')
       end
+
+      describe 'in a different region' do
+        before { @store.options[:region] = 'us-west-1' }
+
+        it 'should return an S3 url' do
+          @store.url('identifier').must_equal('https://s3-us-west-1.amazonaws.com/directory/identifier')
+        end
+      end
     end
 
     describe 'for CloudFiles connections' do

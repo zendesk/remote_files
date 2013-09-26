@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(/test\//)
   gem.require_paths = ['lib']
 
-  gem.add_dependency 'fog', '~> 1.7'
+  gem.add_dependency 'fog', '~> 1.15'
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'minitest', '~> 3.4.0'

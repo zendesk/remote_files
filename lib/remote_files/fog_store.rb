@@ -7,7 +7,8 @@ module RemoteFiles
         :body         => file.content,
         :content_type => file.content_type,
         :key          => file.identifier,
-        :public       => options[:public]
+        :public       => options[:public],
+        :encryption   => 'AES256'
       )
 
       raise RemoteFiles::Error unless success

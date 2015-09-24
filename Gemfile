@@ -2,13 +2,11 @@ source 'https://rubygems.org'
 
 gemspec
 
-group :test, :development do
-  gem 'rake'
-  gem 'resque'
-end
+gem 'fog-aws'
+gem 'fog-rackspace', git: 'https://github.com/fog/fog-rackspace.git'
 
-group :test do
-  gem 'minitest'
-  gem 'minitest-rg'
-  gem 'mocha'
-end
+gem 'rake'
+gem 'resque'
+gem 'minitest'
+gem 'minitest-rg'
+gem 'mocha'

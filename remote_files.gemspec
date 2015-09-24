@@ -1,7 +1,4 @@
-# -*- encoding: utf-8 -*-
-lib = File.expand_path('../lib', __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'remote_files/version'
+require './lib/remote_files/version'
 
 Gem::Specification.new 'remote_files', RemoteFiles::VERSION do |gem|
   gem.authors       = ['Mick Staugaard']
@@ -13,5 +10,5 @@ Gem::Specification.new 'remote_files', RemoteFiles::VERSION do |gem|
 
   gem.files         = `git ls-files lib README.md`.split("\n")
 
-  gem.add_dependency 'fog', '~> 1.15'
+  gem.add_dependency 'fog-core'
 end

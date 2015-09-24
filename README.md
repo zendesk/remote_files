@@ -7,17 +7,11 @@ and to keep the backends in sync, so that your app will keep working when one ba
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-    gem 'remote_files'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install remote_files
+```Ruby
+# Gemfile
+gem 'remote_files'
+gem 'fog-s3' # add fog for each provider you want to use
+```
 
 ## Configuration
 

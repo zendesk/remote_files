@@ -13,13 +13,12 @@ Gem::Specification.new 'remote_files', RemoteFiles::VERSION do |gem|
 
   gem.files         = `git ls-files lib README.md`.split("\n")
 
-  # NOTE: fog >1.32 requires mime-types gem, and required mime-types-data supports ruby 2.0 only.
+  # NOTE: fog > 1.32 requires mime-types gem, and it only supports ruby 2.0.
   gem.add_dependency 'fog', '1.32.0'
   gem.add_dependency 'fog-core', '1.32.0'
 
-  # Required by Ruby v1.9.3
+  # Required by ruby 1.9.3
   gem.add_dependency 'fog-google', '0.0.7'
   gem.add_dependency 'mime-types', '2.6.1'
-  gem.add_dependency 'net-ssh', '2.9.2'
   gem.add_dependency 'net-ssh', '2.9.2'
 end

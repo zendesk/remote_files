@@ -14,5 +14,5 @@ Gem::Specification.new 'remote_files', RemoteFiles::VERSION do |gem|
   gem.files         = `git ls-files lib README.md`.split("\n")
 
   gem.add_dependency 'fog', '~> 1.15'
-  gem.add_dependency 'mime-types', '~> 3.0'
+  gem.add_dependency('mime-types', '~> 3.0') if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.0.0')
 end

@@ -15,5 +15,6 @@ Gem::Specification.new 'remote_files', RemoteFiles::VERSION do |gem|
 
   # IMPORTANT: fog ~v1.37 requires mime-types-data gem, and that onesupports ruby 2.0.x only.
   # https://github.com/mime-types/mime-types-data/blob/master/mime-types-data.gemspec#L19
-  gem.add_dependency 'fog', '1.15.0'
+  gem.add_dependency 'fog', '1.32.0'
+  gem.add_dependency 'fog-core', '1.32.0'
 end

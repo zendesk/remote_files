@@ -53,7 +53,7 @@ module RemoteFiles
         raise RemoteFiles::Error, message
       end
 
-      connection.delete_object(directory.key, identifier)
+      connection.delete_object(directory_name, identifier)
     rescue Fog::Errors::NotFound, Excon::Errors::NotFound
       raise NotFoundError, $!.message, $!.backtrace
     end

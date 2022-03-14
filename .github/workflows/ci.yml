@@ -1,0 +1,17 @@
+---
+name: CI
+on: push
+
+jobs:
+  specs:
+    runs-on: ubuntu-latest
+    name: Specs
+    steps:
+      - uses: zendesk/checkout@v2
+      - name: Install Ruby and Bundler
+        uses: zendesk/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Run Specs
+        run: bundle exec rake

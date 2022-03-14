@@ -59,10 +59,11 @@ module RemoteFiles
     end
 
     def connection
-      connection_options = options.dup
-      connection_options.delete(:directory)
-      connection_options.delete(:public)
-      @connection ||= Fog::Storage.new(connection_options)
+      opts = options.dup
+      opts.delete(:directory)
+      opts.delete(:public)
+      opts[:connection_options] ||= default_connection_options
+      @connection ||= Fog::Storage.new(opts)
     end
 
     def directory_name
@@ -74,6 +75,13 @@ module RemoteFiles
     end
 
     protected
+
+    def default_connection_options
+      {
+        retry_limit: 0,
+        retry_interval: 0
+      }
+    end
 
     def aws_host
       case options[:region]

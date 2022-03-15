@@ -9,6 +9,7 @@ Gem::Specification.new 'remote_files', RemoteFiles::VERSION do |gem|
   gem.license       = 'Apache License Version 2.0'
 
   gem.files         = `git ls-files lib README.md`.split("\n")
+  gem.required_ruby_version = '>= 2.1'
 
   gem.add_dependency 'fog-aws', '>= 0.8.1'
   gem.add_dependency 'mime-types'

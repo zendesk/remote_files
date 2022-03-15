@@ -3,15 +3,17 @@ name: CI
 on: push
 
 jobs:
-  specs:
+  test:
     runs-on: ubuntu-latest
-    name: Specs
+    strategy:
+      matrix:
+        ruby: [ '2.0', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7', 'jruby' ]
+        task: [ 'bundle exec rake' ]
+    name: Ruby ${{ matrix.ruby }} - ${{ matrix.task }}
     steps:
-      - uses: zendesk/checkout@v2
-      - name: Install Ruby and Bundler
-        uses: zendesk/setup-ruby@v1
-        with:
-          bundler-cache: true
-
-      - name: Run Specs
-        run: bundle exec rake
+    - uses: zendesk/checkout@v2
+    - uses: zendesk/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+    - run: ${{ matrix.task }}

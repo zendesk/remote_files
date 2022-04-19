@@ -79,6 +79,9 @@ module RemoteFiles
           next unless file
           @content      = file.content
           @content_type = file.content_type
+          if @options[:populate_stored_in]
+            @stored_in = file.stored_in
+          end
           return true
         rescue Error => e
         end

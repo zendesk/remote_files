@@ -3,7 +3,7 @@ module RemoteFiles
     attr_reader :content, :content_type, :identifier, :stored_in, :configuration
 
     def initialize(identifier, options = {})
-      known_keys = [:identifier, :stored_in, :content_type, :configuration, :content]
+      known_keys = [:identifier, :stored_in, :content_type, :configuration, :content, :populate_stored_in]
       known_keys.each do |key|
         options[key] ||= options.delete(key.to_s)
       end
@@ -79,9 +79,8 @@ module RemoteFiles
           next unless file
           @content      = file.content
           @content_type = file.content_type
-          if @options[:populate_stored_in]
-            @stored_in = file.stored_in
-          end
+          # :populate_stored_in is a boolean
+          @stored_in = file.stored_in if options.key?(:populate_stored_in) && (@options[:populate_stored_in])
           return true
         rescue Error => e
         end

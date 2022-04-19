@@ -21,6 +21,7 @@ describe RemoteFiles::ResqueJob do
         :stored_in     => [:s3],
         :foo           => :bar,
         :configuration => :default,
+        :populate_stored_in => nil,
         :_action       => :synchronize
       )
 
@@ -34,6 +35,7 @@ describe RemoteFiles::ResqueJob do
         :stored_in     => [:s3],
         :foo           => :bar,
         :configuration => :default,
+        :populate_stored_in => nil,
         :_action       => :delete
       )
 

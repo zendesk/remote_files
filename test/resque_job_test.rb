@@ -28,20 +28,6 @@ describe RemoteFiles::ResqueJob do
       RemoteFiles.synchronize_stores(@file)
     end
 
-    it 'should still setup the right synchronize_stores hook even with populate_stored_in set' do
-      Resque.expects(:enqueue).with(RemoteFiles::ResqueJob,
-        :identifier    => 'identifier',
-        :content_type  => 'text/plain',
-        :stored_in     => [:s3],
-        :foo           => :bar,
-        :configuration => :default,
-        :populate_stored_in => true,
-        :_action       => :synchronize
-      )
-
-      RemoteFiles.synchronize_stores(@file)
-    end
-
     it 'should setup the right delete_file hook' do
       Resque.expects(:enqueue).with(RemoteFiles::ResqueJob,
         :identifier    => 'identifier',
@@ -56,19 +42,6 @@ describe RemoteFiles::ResqueJob do
       RemoteFiles.delete_file(@file)
     end
 
-    it 'should still setup the right delete_file hook even with populate_stored_in set' do
-      Resque.expects(:enqueue).with(RemoteFiles::ResqueJob,
-        :identifier    => 'identifier',
-        :content_type  => 'text/plain',
-        :stored_in     => [:s3],
-        :foo           => :bar,
-        :configuration => :default,
-        :populate_stored_in => true,
-        :_action       => :delete
-      )
-
-      RemoteFiles.delete_file(@file)
-    end
   end
 
   describe "running the job" do
@@ -102,4 +75,78 @@ describe RemoteFiles::ResqueJob do
     end
   end
 
+  describe 'loading the implementation file with populate_stored_in set' do
+    before do
+      @file = RemoteFiles::File.new('identifier',
+        :content_type => 'text/plain',
+        :content      => 'content',
+        :stored_in    => [:s3],
+        :foo          => :bar,
+        :populate_stored_in => true
+      )
+
+      load 'remote_files/resque_job.rb'
+    end
+
+    it 'should setup the right synchronize_stores hook' do
+      Resque.expects(:enqueue).with(RemoteFiles::ResqueJob,
+        :identifier    => 'identifier',
+        :content_type  => 'text/plain',
+        :stored_in     => [:s3],
+        :foo           => :bar,
+        :configuration => :default,
+        :populate_stored_in => true,
+        :_action       => :synchronize
+      )
+
+      RemoteFiles.synchronize_stores(@file)
+    end
+
+    it 'should setup the right delete_file hook' do
+      Resque.expects(:enqueue).with(RemoteFiles::ResqueJob,
+        :identifier    => 'identifier',
+        :content_type  => 'text/plain',
+        :stored_in     => [:s3],
+        :foo           => :bar,
+        :configuration => :default,
+        :populate_stored_in => true,
+        :_action       => :delete
+      )
+
+      RemoteFiles.delete_file(@file)
+    end
+  end
+
+  describe "running the job with populate_stored_in set" do
+    before do
+      @options = {
+        :identifier   => 'identifier',
+        :content_type => 'text/plain',
+        :stored_in    => [:s3],
+        :populate_stored_in => true,
+        :foo          => :bar
+      }
+
+      @file = stub
+
+      RemoteFiles::File.expects(:new).with('identifier',
+        :content_type => 'text/plain',
+        :stored_in    => [:s3],
+        :populate_stored_in => true,
+        :foo          => :bar
+      ).returns(@file)
+    end
+
+    it 'should call #synchronize! on the reconstructed file when asked to' do
+      @file.expects(:synchronize!)
+
+      RemoteFiles::ResqueJob.perform(@options.merge(:_action => :synchronize))
+    end
+
+    it 'should call #delete_now! on the reconstructed file when asked to' do
+      @file.expects(:delete_now!)
+
+      RemoteFiles::ResqueJob.perform(@options.merge(:_action => :delete))
+    end
+  end
 end

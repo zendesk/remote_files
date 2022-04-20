@@ -135,10 +135,11 @@ describe RemoteFiles::File do
 
   describe '#retrieve!' do
     before do
-      @file_with_content = RemoteFiles::File.new('identifier', :content => 'content', :content_type => 'content_type')
+      @file_with_content = RemoteFiles::File.new('identifier', :content => 'content', :content_type => 'content_type', :populate_stored_in => true)
 
       @store = stub
       @file.stubs(:stores).returns([@store])
+      @file.stubs(:stored_in).returns([@store])
     end
 
     describe 'when the file is found' do
@@ -146,14 +147,16 @@ describe RemoteFiles::File do
         @store.expects(:retrieve!).returns(@file_with_content)
       end
 
-      it 'fills in the content and content_type' do
+      it 'fills in the content, content_type, and stored_in' do
         @file.content.must_be_nil
         @file.content_type.must_be_nil
+        @file.populate_stored_in.must_be_nil
 
         @file.retrieve!
 
         @file.content.must_equal 'content'
         @file.content_type.must_equal 'content_type'
+        @file.stored_in.must_equal [@store]
       end
     end
 

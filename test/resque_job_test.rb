@@ -28,6 +28,20 @@ describe RemoteFiles::ResqueJob do
       RemoteFiles.synchronize_stores(@file)
     end
 
+    it 'should still setup the right synchronize_stores hook even with populate_stored_in set' do
+      Resque.expects(:enqueue).with(RemoteFiles::ResqueJob,
+        :identifier    => 'identifier',
+        :content_type  => 'text/plain',
+        :stored_in     => [:s3],
+        :foo           => :bar,
+        :configuration => :default,
+        :populate_stored_in => true,
+        :_action       => :synchronize
+      )
+
+      RemoteFiles.synchronize_stores(@file)
+    end
+
     it 'should setup the right delete_file hook' do
       Resque.expects(:enqueue).with(RemoteFiles::ResqueJob,
         :identifier    => 'identifier',
@@ -36,6 +50,20 @@ describe RemoteFiles::ResqueJob do
         :foo           => :bar,
         :configuration => :default,
         :populate_stored_in => nil,
+        :_action       => :delete
+      )
+
+      RemoteFiles.delete_file(@file)
+    end
+
+    it 'should still setup the right delete_file hook even with populate_stored_in set' do
+      Resque.expects(:enqueue).with(RemoteFiles::ResqueJob,
+        :identifier    => 'identifier',
+        :content_type  => 'text/plain',
+        :stored_in     => [:s3],
+        :foo           => :bar,
+        :configuration => :default,
+        :populate_stored_in => true,
         :_action       => :delete
       )
 

@@ -1,6 +1,6 @@
 module RemoteFiles
   class File
-    attr_reader :content, :content_type, :identifier, :stored_in, :configuration
+    attr_reader :content, :content_type, :identifier, :stored_in, :configuration, :populate_stored_in
 
     def initialize(identifier, options = {})
       known_keys = [:identifier, :stored_in, :content_type, :configuration, :content, :populate_stored_in]
@@ -14,6 +14,7 @@ module RemoteFiles
       @content_type  = options[:content_type]
       @configuration = RemoteFiles::CONFIGURATIONS[(options[:configuration] || :default).to_sym]
       @logger        = options[:logger]
+      @populate_stored_in = options[:populate_stored_in]
       @options       = options
     end
 
@@ -34,7 +35,8 @@ module RemoteFiles
         :identifier    => identifier,
         :stored_in     => stored_in,
         :content_type  => content_type,
-        :configuration => configuration.name
+        :configuration => configuration.name,
+        :populate_stored_in => populate_stored_in
       )
     end
 

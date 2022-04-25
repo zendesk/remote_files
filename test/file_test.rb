@@ -135,7 +135,7 @@ describe RemoteFiles::File do
 
   describe '#retrieve!' do
     before do
-      @file_with_content = RemoteFiles::File.new('identifier', :content => 'content', :content_type => 'content_type', :populate_stored_in => true)
+      @file_with_content = RemoteFiles::File.new('identifier', :content => 'content', :content_type => 'content_type', :populate_stored_in => nil)
 
       @store = stub
       @file.stubs(:stores).returns([@store])
@@ -147,16 +147,14 @@ describe RemoteFiles::File do
         @store.expects(:retrieve!).returns(@file_with_content)
       end
 
-      it 'fills in the content, content_type, and stored_in' do
+      it 'fills in the content and content_type' do
         @file.content.must_be_nil
         @file.content_type.must_be_nil
-        @file.populate_stored_in.must_be_nil
 
         @file.retrieve!
 
         @file.content.must_equal 'content'
         @file.content_type.must_equal 'content_type'
-        @file.stored_in.must_equal [@store]
       end
     end
 
@@ -167,6 +165,40 @@ describe RemoteFiles::File do
 
       it 'raises a NotFoundError' do
         proc { @file.retrieve! }.must_raise(RemoteFiles::NotFoundError)
+      end
+    end
+
+    describe 'populate_stored_in is set' do
+      before do
+        @file_with_content = RemoteFiles::File.new('identifier', :content => 'content', :content_type => 'content_type', :populate_stored_in => true)
+      end
+
+      describe 'when the file is found' do
+        before do
+          @store.expects(:retrieve!).returns(@file_with_content)
+        end
+
+        it 'fills in the content, content_type, and stored_in' do
+          @file.content.must_be_nil
+          @file.content_type.must_be_nil
+          @file.populate_stored_in.must_be_nil
+
+          @file.retrieve!
+
+          @file.content.must_equal 'content'
+          @file.content_type.must_equal 'content_type'
+          @file.stored_in.must_equal [@store]
+        end
+      end
+
+      describe 'when the file is not found' do
+        before do
+          @store.expects(:retrieve!).returns(nil)
+        end
+
+        it 'raises a NotFoundError' do
+          proc { @file.retrieve! }.must_raise(RemoteFiles::NotFoundError)
+        end
       end
     end
   end

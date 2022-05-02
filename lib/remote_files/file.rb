@@ -82,7 +82,7 @@ module RemoteFiles
           @content      = file.content
           @content_type = file.content_type
           # :populate_stored_in is a boolean
-          @stored_in = file.stored_in if options.key?(:populate_stored_in) && (@options[:populate_stored_in])
+          @stored_in = file.stored_in if @populate_stored_in
           return true
         rescue Error => e
         end

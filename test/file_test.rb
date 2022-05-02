@@ -156,7 +156,7 @@ describe RemoteFiles::File do
         @file.content_type.must_equal 'content_type'
       end
 
-      it 'verifies stored_in does not get populated' do
+      it 'does not fill in stored_in' do
         @file.stored_in.must_equal []
 
         @file.retrieve!

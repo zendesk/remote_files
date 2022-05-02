@@ -139,7 +139,6 @@ describe RemoteFiles::File do
 
       @store = stub
       @file.stubs(:stores).returns([@store])
-      @file.stubs(:stored_in).returns([@store])
     end
 
     describe 'when the file is found' do
@@ -156,6 +155,14 @@ describe RemoteFiles::File do
         @file.content.must_equal 'content'
         @file.content_type.must_equal 'content_type'
       end
+
+      it 'verifies stored_in does not get populated' do
+        @file.stored_in.must_equal []
+
+        @file.retrieve!
+
+        @file.stored_in.must_equal []
+      end
     end
 
     describe 'when the file is not found' do
@@ -171,6 +178,7 @@ describe RemoteFiles::File do
     describe 'populate_stored_in is set' do
       before do
         @file_with_content = RemoteFiles::File.new('identifier', :content => 'content', :content_type => 'content_type', :populate_stored_in => true)
+        @file.stubs(:stored_in).returns([@store])
       end
 
       describe 'when the file is found' do

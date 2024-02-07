@@ -10,7 +10,7 @@ $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require 'remote_files'
 Fog.mock!
 
-MiniTest::Spec.class_eval do
+Minitest::Spec.class_eval do
   before do
     Fog::Mock.reset
 

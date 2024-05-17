@@ -134,9 +134,9 @@ module RemoteFiles
           :body => file.content,
           :content_type => file.content_type,
           :key => file.identifier,
-          :public => options[:public],
           :encryption => options[:encryption]
         }
+      store_options[:public] = options[:public] if options.key?(:public)
       if file.options[:multipart_chunk_size]
         raise RemoteFiles::Error.new("Only S3 supports the multipart_chunk_size option") unless options[:provider] == 'AWS'
         chunk_size = file.options[:multipart_chunk_size]

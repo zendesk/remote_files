@@ -269,6 +269,39 @@ describe RemoteFiles::Configuration do
         @mock_store2.data.has_key?(@file.identifier).must_equal false
       end
     end
+
+    describe 'when deleting files in parallel' do
+      before do
+        @read_only_store = @configuration.add_store(:read_only_store, :class => RemoteFiles::MockStore, :read_only => true)
+        @file.stored_in.replace([:mock1, :read_only_store, :mock2])
+      end
+
+      it 'deletes the file from all editable stores in parallel' do
+        @mock_store1.data[@file.identifier] = {:content_type => 'text/plain', :content => 'content'}
+        @mock_store2.data[@file.identifier] = {:content_type => 'text/plain', :content => 'content'}
+        @read_only_store.data[@file.identifier] = {:content_type => 'text/plain', :content => 'content'}
+
+        @configuration.delete_now!(@file, parallel: true)
+
+        @mock_store1.data.has_key?(@file.identifier).must_equal false
+        @mock_store2.data.has_key?(@file.identifier).must_equal false
+        @read_only_store.data.has_key?(@file.identifier).must_equal true
+      end
+
+      it 'raises when no stores are configured' do
+        @file.expects(:read_write_stores).returns([])
+        e = assert_raises(RuntimeError) { @configuration.delete_now!(@file, parallel: true) }
+        e.message.must_equal "No stores configured"
+      end
+
+      it 'raises a RemoteFiles::Error when all stores fail' do
+        @mock_store1.expects(:delete!).raises(RemoteFiles::NotFoundError)
+        @mock_store2.expects(:delete!).raises(RemoteFiles::NotFoundError)
+        @read_only_store.expects(:delete!).never
+
+        proc { @configuration.delete_now!(@file, parallel: true) }.must_raise(RemoteFiles::NotFoundError)
+      end
+    end
   end
 
   describe '#delete!' do

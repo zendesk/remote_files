@@ -12,4 +12,5 @@ Gem::Specification.new 'remote_files', RemoteFiles::VERSION do |gem|
 
   gem.add_dependency 'fog-aws', '>= 0.8.1'
   gem.add_dependency 'mime-types'
+  gem.add_dependency 'concurrent-ruby', '>= 1.1.0'
 end

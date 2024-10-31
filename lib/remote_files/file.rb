@@ -118,8 +118,8 @@ module RemoteFiles
       end
     end
 
-    def delete_now!
-      configuration.delete_now!(self)
+    def delete_now!(parallel: false)
+      configuration.delete_now!(self, parallel: parallel)
     end
   end
 end

@@ -1,3 +1,5 @@
+require 'concurrent-ruby'
+
 module RemoteFiles
   class Configuration
     attr_reader :name
@@ -6,6 +8,7 @@ module RemoteFiles
       @name       = name
       @stores     = []
       @stores_map = {}
+      @max_delete_in_parallel = config.delete(:max_delete_in_parallel) || 10
       from_hash(config)
     end
 
@@ -125,25 +128,51 @@ module RemoteFiles
       RemoteFiles.delete_file(file)
     end
 
-    def delete_now!(file)
+    def delete_now!(file, parallel: false)
       exceptions = []
       stores = file.read_write_stores
 
       raise "No stores configured" if stores.empty?
 
-      stores.each do |store|
-        begin
-          store.delete!(file.identifier)
-        rescue NotFoundError => e
-          exceptions << e
+      if parallel
+        delete_in_parallel!(file, stores, exceptions)
+      else
+        stores.each do |store|
+          begin
+            store.delete!(file.identifier)
+          rescue NotFoundError => e
+            exceptions << e
+          end
         end
       end
 
-      if exceptions.size == stores.size # they all failed
-        raise exceptions.first
-      end
+      raise exceptions.first if exceptions.size == stores.size # they all failed
 
       true
+    end
+
+    # This method is used to delete a file from all stores in parallel
+    # exceptions are passed back to the caller
+    def delete_in_parallel!(file, stores, exceptions)
+      pool = Concurrent::FixedThreadPool.new(@max_delete_in_parallel)
+
+      futures = stores.map do |store|
+        Concurrent::Promises.future_on(pool) do
+          begin
+            store.delete!(file.identifier)
+          rescue NotFoundError => e
+            e
+          end
+        end
+      end
+
+      futures.each do |future|
+        result = future.value
+        exceptions << result if result.is_a?(Exception)
+      end
+
+      pool.shutdown
+      pool.wait_for_termination
     end
 
     def synchronize!(file)

@@ -121,8 +121,13 @@ describe RemoteFiles::File do
 
   describe '#delete_now!' do
     it 'asks the configuration to delete the file' do
-      @file.configuration.expects(:delete_now!).with(@file).returns(true)
+      @file.configuration.expects(:delete_now!).with(@file, parallel: false).returns(true)
       @file.delete_now!
+    end
+
+    it 'asks the configuration to delete the file in parallel' do
+      @file.configuration.expects(:delete_now!).with(@file, parallel: true).returns(true)
+      @file.delete_now!(parallel: true)
     end
   end
 

@@ -270,6 +270,13 @@ describe RemoteFiles::Configuration do
       end
     end
 
+    describe 'when there is a non-404 error' do
+      it 're-raises the error' do
+        @mock_store1.expects(:delete!).raises(Excon::Errors::Error)
+        proc { @configuration.delete_now!(@file) }.must_raise(Excon::Errors::Error)
+      end
+    end
+
     describe 'when deleting files in parallel' do
       before do
         @read_only_store = @configuration.add_store(:read_only_store, :class => RemoteFiles::MockStore, :read_only => true)
@@ -300,6 +307,13 @@ describe RemoteFiles::Configuration do
         @read_only_store.expects(:delete!).never
 
         proc { @configuration.delete_now!(@file, parallel: true) }.must_raise(RemoteFiles::NotFoundError)
+      end
+
+      describe 'when there is a non-404 error' do
+        it 're-raises the error' do
+          @mock_store1.expects(:delete!).raises(Excon::Errors::Error)
+          proc { @configuration.delete_now!(@file, parallel: true) }.must_raise(Excon::Errors::Error)
+        end
       end
     end
   end

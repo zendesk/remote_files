@@ -151,8 +151,9 @@ module RemoteFiles
       true
     end
 
-    # This method is used to delete a file from all stores in parallel
-    # exceptions are passed back to the caller
+    # Deletes a file from all writable stores in parallel.
+    # When the file is missing the Future's value is set to NotFoundError exception.
+    # Re-raises any other exceptions, but doesn't prevent concurrent requests from being executed.
     def delete_in_parallel!(file, stores, exceptions)
       pool = Concurrent::FixedThreadPool.new(@max_delete_in_parallel)
 
@@ -167,7 +168,7 @@ module RemoteFiles
       end
 
       futures.each do |future|
-        result = future.value
+        result = future.value!
         exceptions << result if result.is_a?(Exception)
       end
 

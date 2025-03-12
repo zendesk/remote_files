@@ -263,8 +263,8 @@ describe RemoteFiles::Configuration do
     end
 
     describe 'when the file is in none of stores' do
-      it 'raises a NotFoundError' do
-        lambda { @configuration.delete_now!(@file) }.must_raise(RemoteFiles::NotFoundError)
+      it 'does not raise' do
+        @configuration.delete_now!(@file)
         @mock_store1.data.has_key?(@file.identifier).must_equal false
         @mock_store2.data.has_key?(@file.identifier).must_equal false
       end
@@ -301,12 +301,12 @@ describe RemoteFiles::Configuration do
         e.message.must_equal "No stores configured"
       end
 
-      it 'raises a RemoteFiles::Error when all stores fail' do
+      it 'does not raise when all stores fail with NotFoundErrors' do
         @mock_store1.expects(:delete!).raises(RemoteFiles::NotFoundError)
         @mock_store2.expects(:delete!).raises(RemoteFiles::NotFoundError)
         @read_only_store.expects(:delete!).never
 
-        proc { @configuration.delete_now!(@file, parallel: true) }.must_raise(RemoteFiles::NotFoundError)
+        @configuration.delete_now!(@file, parallel: true)
       end
 
       describe 'when there is a non-404 error' do

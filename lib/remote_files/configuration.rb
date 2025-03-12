@@ -136,6 +136,11 @@ module RemoteFiles
 
       if parallel
         delete_in_parallel!(file, stores, exceptions)
+
+        # If any attempted deletions failed with something other than a NotFoundError, raise
+        # that error
+        unexpected_error = exceptions.detect { |exception| !exception.is_a?(NotFoundError)}
+        raise unexpected_error if unexpected_error
       else
         stores.each do |store|
           begin
@@ -144,9 +149,11 @@ module RemoteFiles
             exceptions << e
           end
         end
-      end
 
-      raise exceptions.first if exceptions.size == stores.size # they all failed
+        # in the non-parallelized case, any non-NotFoundError would not be rescued and would be raised
+        # regardless so we don't need to check those here - if all the errors were NotFoundErrors that
+        # is an acceptable outcome
+      end
 
       true
     end
@@ -161,7 +168,7 @@ module RemoteFiles
         Concurrent::Promises.future_on(pool) do
           begin
             store.delete!(file.identifier)
-          rescue NotFoundError => e
+          rescue StandardError => e
             e
           end
         end

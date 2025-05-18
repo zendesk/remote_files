@@ -55,7 +55,11 @@ module RemoteFiles
     end
 
     def read_write_stores
-      stores.reject(&:read_only?)
+      stores.reject {|s| s.read_only? || s.read_delete_only? }
+    end
+
+    def read_delete_only_stores
+      stores.select(&:read_delete_only?)
     end
 
     def missing_stores

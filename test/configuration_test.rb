@@ -54,10 +54,12 @@ describe RemoteFiles::Configuration do
       @store2 = @configuration.add_store(:store2, :primary => true)
       @read_only_store = @configuration.add_store(:read_only_store, :read_only => true)
       @store3 = @configuration.add_store(:store3, :read_only => false)
+      @store4 = @configuration.add_store(:store4, :read_delete_only => true)
+      @store5 = @configuration.add_store(:store5, :read_delete_only => false)
     end
 
     it 'should return only read write stores' do
-      @configuration.read_write_stores.must_equal([@store2, @mock_store1, @mock_store2, @store1, @store3])
+      @configuration.read_write_stores.must_equal([@store2, @mock_store1, @mock_store2, @store1, @store3, @store5])
     end
   end
 
@@ -67,6 +69,8 @@ describe RemoteFiles::Configuration do
       @store2 = @configuration.add_store(:store2, :primary => true)
       @read_only_store = @configuration.add_store(:read_only_store, :read_only => true)
       @store3 = @configuration.add_store(:store3, :read_only => false)
+      @store4 = @configuration.add_store(:store4, :read_delete_only => true)
+      @store5 = @configuration.add_store(:store5, :read_delete_only => false)
     end
 
     it 'should return only read write stores' do
@@ -105,6 +109,7 @@ describe RemoteFiles::Configuration do
 
       @mock_store1 = @configuration.add_store(:mock1, :class => RemoteFiles::MockStore)
       @read_only_store = @configuration.add_store(:read_only_store, :class => RemoteFiles::MockStore, :read_only => true)
+      @read_delete_only_store = @configuration.add_store(:read_delete_only_store, :class => RemoteFiles::MockStore, :read_delete_only => true)
       @mock_store2 = @configuration.add_store(:mock2, :class => RemoteFiles::MockStore, :read_only => false)
     end
 
@@ -133,6 +138,7 @@ describe RemoteFiles::Configuration do
 
       it 'should only store the file in the second editable store' do
         @read_only_store.expects(:store!).never
+        @read_delete_only_store.expects(:store!).never
 
         @mock_store1.data['file'].must_be_nil
         @mock_store2.data['file'].must_equal(:content => 'content', :content_type => 'text/plain', :last_update_ts => @file.last_update_ts)
@@ -163,8 +169,9 @@ describe RemoteFiles::Configuration do
       before do
         @mock_store1.expects(:store!).with(@file).raises(RemoteFiles::Error)
         @mock_store2.expects(:store!).with(@file).raises(RemoteFiles::Error)
-        # should never try a readable store
+        # should never try a read-only store
         @read_only_store.expects(:store!).never
+        @read_delete_only_store.expects(:store!).never
       end
 
       it 'should raise a RemoteFiles::Error' do
@@ -316,6 +323,22 @@ describe RemoteFiles::Configuration do
         end
       end
     end
+
+    describe 'when there is a read delete only store' do
+      before do 
+        @read_delete_only_store = @configuration.add_store(:read_delete_only_store, :class => RemoteFiles::MockStore, :read_delete_only => true)
+        @read_only_store = @configuration.add_store(:read_only_store, :class => RemoteFiles::MockStore, :read_only => true)
+        @read_delete_only_store.data[@file.identifier] = {:content_type => 'text/plain', :content => 'content'}
+        @read_only_store.data[@file.identifier] = {:content_type => 'text/plain', :content => 'content'}
+        @file.stored_in.replace([:read_only_store, :read_delete_only_store])
+      end
+
+      it 'should delete the file from all deletable stores' do
+        @configuration.delete_now!(@file)
+        @read_delete_only_store.data.has_key?(@file.identifier).must_equal false
+        @read_only_store.data.has_key?(@file.identifier).must_equal true
+      end
+    end
   end
 
   describe '#delete!' do
@@ -347,6 +370,7 @@ describe RemoteFiles::Configuration do
     describe 'when the file is not stored anywhere' do
       before do
         @read_only_store = @configuration.add_store(:read_only_store, :read_only => true)
+        @read_delete_only_store = @configuration.add_store(:read_delete_only_store, :read_delete_only => true)
         @file.stored_in.replace([])
       end
 
@@ -354,6 +378,7 @@ describe RemoteFiles::Configuration do
         @mock_store1.expects(:store!).returns(true)
         @mock_store2.expects(:store!).returns(true)
         @read_only_store.expects(:store!).never
+        @read_delete_only_store.expects(:store!).never
 
         @configuration.synchronize!(@file)
       end

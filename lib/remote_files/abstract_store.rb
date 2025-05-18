@@ -54,6 +54,10 @@ module RemoteFiles
       options[:read_only] == true
     end
 
+    def read_delete_only?
+      options[:read_delete_only] == true
+    end
+
     def file_from_url(url, options = {})
       matched = url_matcher.match(url)
 

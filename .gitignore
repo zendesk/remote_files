@@ -14,5 +14,6 @@ rdoc
 spec/reports
 test/tmp
 test/version_tmp
+other_tmp/
 tmp
 .idea

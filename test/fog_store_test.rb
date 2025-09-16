@@ -5,7 +5,8 @@ describe RemoteFiles::FogStore do
     @connection = Fog::Storage.new({
       :provider              => 'AWS',
       :aws_access_key_id     => 'access_key_id',
-      :aws_secret_access_key => 'secret_access_key'
+      :aws_secret_access_key => 'secret_access_key',
+      :encryption => "AES256"
     })
 
     @store = RemoteFiles::FogStore.new(:fog)
